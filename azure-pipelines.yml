@@ -107,6 +107,13 @@ stages:
         ARM_CLIENT_SECRET: $(ARM_CLIENT_SECRET)
         ARM_TENANT_ID: $(ARM_TENANT_ID)
         ARM_SUBSCRIPTION_ID: $(ARM_SUBSCRIPTION_ID) 
+    - bash: |
+        mkdir -p $(Pipeline.Workspace)/variables
+        echo "$WebAppNameDev" > $(Pipeline.Workspace)/variables/WebAppNameDev
+
+    - publish: $(Pipeline.Workspace)/variables
+      artifact: variables
+
   - deployment: Deploy
     dependsOn: Provision
     variables:
@@ -118,8 +125,17 @@ stages:
       runOnce:
         deploy:
           steps:
+          - download: current
+            artifact: variables
+
+          - bash: |
+              WebAppNameDev=$(cat $(Pipeline.Workspace)/variables/WebAppNameDev)
+              echo "##vso[task.setvariable variable=WebAppNameDev]$WebAppNameDev"
+              echo $WebAppNameDev
+              echo "$(WebAppNameDev)""
           - script: |
               echo $WebAppNameDev
+              echo "$(WebAppNameDev)"
             displayName: 'Custom Script'
           - download: current
             artifact: drop
