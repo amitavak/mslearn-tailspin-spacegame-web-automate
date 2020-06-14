@@ -116,6 +116,9 @@ stages:
       runOnce:
         deploy:
           steps:
+          - script: |
+              echo $WebAppNameDev
+            displayName: 'Custom Script'
           - download: current
             artifact: drop
           - task: AzureWebApp@1
